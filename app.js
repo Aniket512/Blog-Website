@@ -66,6 +66,13 @@ app.get("/posts/:postId",function(req,res){
    
 });
 
+app.get("/edit/:postId", function (req, res) {
+  const requestedPostId = req.params.postId;
+  Post.findOne({_id: requestedPostId}, function(err, post){
+    res.render("edit",{postId : post._id, postTitle : post.title , postContent : post.content})
+});
+
+})
 
 app.post("/compose",function(req,res){
  
@@ -84,14 +91,29 @@ app.post("/compose",function(req,res){
 });
 
 
-app.post("/delete",function(req,res){
-  Post.findByIdAndRemove(req.body.postId,function(err){
+app.get("/delete/:postId",function(req,res){
+  Post.findByIdAndRemove(req.params.postId,function(err){
     if(!err){
       res.redirect("/");
     }
   });
 });
 
+app.post("/edit/:id", function (req, res) {
+  const postId = req.params.id;
+  console.log(req.body);
+  Post.updateOne({ '_id': postId }, {
+      '$set': {
+          'title': req.body.postTitle,
+          'content': req.body.postBody
+      }
+  }, function (err) {
+      if (err) {
+          console.log(err);
+      }
+  });
+  res.redirect("/");
+})
 
 app.listen(3000, function() {
   console.log("Server started on port 3000");
